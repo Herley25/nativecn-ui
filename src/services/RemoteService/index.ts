@@ -6,42 +6,26 @@ export class RemoteService {
   static async request<T>({method, module, resource}: RequestProps) {
     const axios = getAxiosInstance({module});
 
-    switch (method) {
-      default:
-      case 'GET':
-        try {
+    try {
+      switch (method) {
+        case 'GET':
           return await axios.get<T>(resource);
-        } catch (err) {
-          const error = err as AxiosError;
-          if (error.code !== 'ERR_NETWORK') {
-            throw new Error(JSON.stringify(error.response));
-          } else {
-            throw new Error(JSON.stringify(error));
-          }
-        }
-      case 'POST':
-        try {
+        case 'POST':
           return await axios.post<T>(resource);
-        } catch (err) {
-          const error = err as AxiosError;
-          if (error.code !== 'ERR_NETWORK') {
-            throw new Error(JSON.stringify(error.response));
-          } else {
-            throw new Error(JSON.stringify(error));
-          }
-        }
-      case 'PUT':
-        try {
+        case 'PUT':
           return await axios.put<T>(resource);
-        } catch (err) {
-          throw new Error(JSON.stringify((err as AxiosError).response));
-        }
-      case 'PATH':
-        try {
-          return await axios.put<T>(resource);
-        } catch (err) {
-          throw new Error(JSON.stringify((err as AxiosError).response));
-        }
+        case 'PATH':
+          return await axios.patch<T>(resource);
+        default:
+          throw new Error(`Unsupported method: ${method}`);
+      }
+    } catch (err) {
+      const error = err as AxiosError;
+      if (error.code !== 'ERR_NETWORK') {
+        throw new Error(JSON.stringify(error.response?.data));
+      } else {
+        throw new Error(JSON.stringify(error));
+      }
     }
   }
 }
